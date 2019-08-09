@@ -8,6 +8,7 @@ bool fileOpened;
 bool washingStatus;
 int washStart;
 int washEnd;
+int washTime;
 int personCounter = 0;
 
 void setup()
@@ -34,7 +35,7 @@ void setup()
   } else {
     fileOpened = false;
     Serial.println("error opening test.txt in setup stage");
-    tone(piezo,2000, 500);
+    tone(piezo, 2000, 500);
   }
 
   tone(piezo, 5000, 500);
@@ -63,11 +64,20 @@ startLoop:
   } else {
     if (washingStatus == true) {
       washEnd = millis();
+      if ((washEnd - washStart) / 1000 >= 20) {
+        tone(piezo, 2000, 250);
+        delay(250);
+        tone(piezo, 3250, 250);
+        delay(250);
+        tone(piezo, 4500, 250);
+        delay(250);
+        tone(piezo, 5750, 250);
+      }
     }
     washingStatus = false;
   }
 
-  int washTime = washEnd - washStart;
+  washTime = washEnd - washStart;
   Serial.print("#");
   Serial.print(personCounter);
   Serial.print(": ");
@@ -77,7 +87,7 @@ startLoop:
   Serial.print(distance);
   Serial.print(" cm");
   Serial.print('\t');
-  if ((washTime / 1000) > 0 && washEnd > washStart) {
+  if ((washTime / 1000) > 0) {
     Serial.print(washTime / 1000);
     Serial.print(" sec. spent washing. ");
   }
@@ -110,7 +120,7 @@ startLoop:
     } else {
       // if the file didn't open, print an error:
       Serial.println("error opening test.txt");
-      tone(piezo,2000, 500);
+      tone(piezo, 2000, 500);
     }
   }
 }
