@@ -77,7 +77,7 @@ startLoop:
   Serial.print(distance);
   Serial.print(" cm");
   Serial.print('\t');
-  if ((washTime / 1000) > 0) {
+  if ((washTime / 1000) > 0 && washEnd > washStart) {
     Serial.print(washTime / 1000);
     Serial.print(" sec. spent washing. ");
   }
