@@ -3,17 +3,15 @@
 WiFiMulti WiFiMulti;
 
 boolean washingStatus = false;
-int personIndex;
+int personIndex = 0;
 int startTime;
 int endTime;
 int distances[500] = {0};
+int distanceIndex = 0;
 
 void setup() {
   Serial.begin(9600);
-  WiFiMulti.addAP("Kevin's iPhone", "myNameJeff");
-  uint16_t port = 80;
-  //char * host = "192.168.1.132";
-  char * host = "172.20.10.2";
+  WiFiMulti.addAP("helloWifi", "416Wifi!");
   Serial.println();
   Serial.println();
   Serial.println("Waiting for WiFi");
@@ -36,8 +34,8 @@ void setup() {
 
 void loop() {
   uint16_t port = 80;
-  //char * host = "192.168.1.132";
-  char * host = "172.20.10.2";
+  char * host = "192.168.1.132";
+  //char * host = "172.20.10.2";
   delay(500);
 
 startLoop:
@@ -51,6 +49,7 @@ startLoop:
     if (distance < 50) {
       distances[j] = distance;
     }
+    //distanceIndex = j;
   }
 
 
@@ -75,7 +74,10 @@ startLoop:
     if (timeSpent > 0) {
       String exchange = "";
       sendData(timeSpent, port, host, exchange, distances);
-      memset(distances, 0, sizeof(distances));
+//      for (int g = distanceIndex; g < 500; g++) {
+//        distances[g] = NULL;
+//      }
+      memset(distances,0,sizeof(distances));
       endTime = 0;
       startTime = 0;
       timeSpent = -1;
@@ -90,17 +92,6 @@ void sendData(float timeSpent, uint16_t port, char *host, String &output, int di
   delay(1000);
   WiFiClient client;
   int attempts = 0;
-connectLine:
-  attempts++;
-  if (attempts > 2) {
-    Serial.println("Failed");
-    return;
-  } else if (!client.connect(host, port)) {
-    Serial.println("Failed");
-    delay(5000);
-    goto connectLine;
-  }
-
   int k = 0;
   while (distances[k] != 0 && distances[k] != NULL) {
     k++;
@@ -118,12 +109,22 @@ connectLine:
     message += ' ';
 
   }
+  connectLine:
+  attempts++;
+  if (attempts > 2) {
+    Serial.println("Failed");
+    return;
+  } else if (!client.connect(host, port)) {
+    Serial.println("Failed");
+    delay(5000);
+    goto connectLine;
+  }
   client.println(message);
   delay(25);
   Serial.println(message);
-  output = client.readStringUntil('\r');
-  Serial.println("Server: " + output + '\n');
+  if (client.connected()) {
+    Serial.println(client.readStringUntil('\r'));
+  }
   client.stop();
   return;
 }
-
